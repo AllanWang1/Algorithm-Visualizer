@@ -11,6 +11,7 @@
 		DFABD0762C8CF01100477D55 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABD0752C8CF01100477D55 /* ContentView.swift */; };
 		DFABD0782C8CF01200477D55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFABD0772C8CF01200477D55 /* Assets.xcassets */; };
 		DFABD07B2C8CF01200477D55 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFABD07A2C8CF01200477D55 /* Preview Assets.xcassets */; };
+		DFE6E1002C921DCC0068CFD0 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		DFABD0752C8CF01100477D55 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DFABD0772C8CF01200477D55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFABD07A2C8CF01200477D55 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 		DFABD0722C8CF01100477D55 /* AlgorithmVisualizer */ = {
 			isa = PBXGroup;
 			children = (
+				DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */,
 				DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */,
 				DFABD0752C8CF01100477D55 /* ContentView.swift */,
 				DFABD0772C8CF01200477D55 /* Assets.xcassets */,
@@ -138,6 +141,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFABD0762C8CF01100477D55 /* ContentView.swift in Sources */,
+				DFE6E1002C921DCC0068CFD0 /* Queue.swift in Sources */,
 				DFABD0742C8CF01100477D55 /* AlgorithmVisualizerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
