@@ -34,6 +34,7 @@ struct ContentView: View {
                             // each square in the grid is an individual button
                             Button {
                                 changeWall(col, row, &colours)
+                                clearSolution()
                             } label: {
                                 Rectangle()
                                     .fill(colours[col][row])
@@ -119,12 +120,24 @@ struct ContentView: View {
             }
             .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
             
-            Spacer()
+            Button {
+                clearSolution()
+            } label: {
+                ZStack {
+                    Rectangle()
+                        .frame(width: 180, height: 70)
+                        .cornerRadius(15)
+                    Text("Clear Solution")
+                        .font(.title)
+                        .foregroundColor(Color.black)
+                }
+                .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
+            }
         }
         
     }
     func changeWall(_ x: Int, _ y: Int, _ colours: inout [[Color]]) {
-        
+        print("solution cleared")
         if (settingStart) {
             if (target != [x, y]) {
                 if (start.count != 0) {
@@ -162,6 +175,7 @@ struct ContentView: View {
         if (target.count != 2 || start.count != 2) {
             return
         }
+        clearSolution()
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
         
         var toVisit = Queue<[Int]>()
@@ -231,6 +245,16 @@ struct ContentView: View {
         }
         for cord in path {
             colours[cord.0][cord.1] = Color.orange
+        }
+    }
+    
+    func clearSolution() {
+        for x in 0..<COLS {
+            for y in 0..<ROWS {
+                if (colours[x][y] != Color.black && start != [x,y] && target != [x,y]) {
+                    colours[x][y] = Color.white
+                }
+            }
         }
     }
 }
