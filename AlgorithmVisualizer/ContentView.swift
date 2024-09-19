@@ -3,9 +3,9 @@ import SwiftUI
 
 struct ContentView: View {
     let square = Image(systemName:"square")
-    let size: CGFloat = 20
-    var COLS = 40
-    var ROWS = 28
+    let size: CGFloat = 17
+    var COLS = 61
+    var ROWS = 33
     @State private var colours: [[Color]]
     
     @State var settingStart:Bool = false
@@ -22,137 +22,163 @@ struct ContentView: View {
         let MAPWIDTH: CGFloat = CGFloat(CGFloat(COLS) * size)
         let MAPHEIGHT: CGFloat = CGFloat(CGFloat(ROWS) * size)
                    
-        
-        VStack {
-            Spacer()
-            
-            VStack(spacing: 0) {
-                ForEach(0..<ROWS, id:\.self) { row in
-                    HStack(spacing:0) {
-                        ForEach(0..<COLS, id:\.self) { col in
-                            
-                            // each square in the grid is an individual button
-                            Button {
-                                changeWall(col, row)
-                                clearSolution()
-                            } label: {
-                                Rectangle()
-                                    .fill(colours[col][row])
-                                    .frame(width: size, height: size)
-                                    .border(Color.black, width:1)
+        ZStack {
+            VStack {
+                Spacer()
+                // Editor, grid, and space on the right
+    //            HStack {
+    //                ZStack {
+    //                    Rectangle()
+    //                        .frame(width: 180, height: 300)
+    //                        .cornerRadius(15)
+    //
+    //                }
+    //
+    //            }
+                VStack(spacing: 0) {
+                    ForEach(0..<ROWS, id:\.self) { row in
+                        HStack(spacing:0) {
+                            ForEach(0..<COLS, id:\.self) { col in
+                                
+                                // each square in the grid is an individual button
+                                Button {
+                                    changeWall(col, row)
+                                    clearSolution()
+                                } label: {
+                                    Rectangle()
+                                        .fill(colours[col][row])
+                                        .frame(width: size, height: size)
+                                        .border(Color.black, width:1)
+                                }
                             }
                         }
                     }
                 }
-            }
-            .frame(width: MAPWIDTH, height: MAPHEIGHT)
-            .border(Color.black, width: 2)
-            HStack {
+                .frame(width: MAPWIDTH, height: MAPHEIGHT)
+                .border(Color.black, width: 2)
                 
-                // set start button
-                Button {
-                    settingStart = !settingStart
-                    if (settingTarget) {
-                        settingTarget = false
-                    }
-                } label: {
-                    if (settingStart) {
-                        Text("Setting Start Position...")
-                            .font(.system(size: 24))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.blue)
-                    } else {
-                        Text("Set Start Position")
-                            .font(.system(size: 24))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.blue)
-                    }
-                }
-                
-                // set target button
-                Button {
-                    settingTarget = !settingTarget
-                    if (settingStart) {
-                        settingStart = false
-                    }
-                } label: {
-                    if (settingTarget) {
-                        Text("Setting Target Position...")
-                            .font(.system(size: 24))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.blue)
-                    } else {
-                        Text("Set Target Position")
-                            .font(.system(size: 24))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.blue)
-                    }
-                }
-                
-            }
-            
-            HStack {
-                Spacer()
-                Button {
-                    BFS()
-                } label: {
-                    ZStack {
-                        Rectangle()
-                            .frame(width: 180, height: 100)
-                            .cornerRadius(15)
-                        Text("BFS")
-                            .font(.title)
-                            .foregroundColor(Color.black)
-                    }
-                }
-                
-                Spacer()
-                
-                Button {
+                // Editors
+                HStack {
                     
-                } label: {
-                    ZStack {
-                        Rectangle()
-                            .frame(width: 180, height: 100)
-                            .cornerRadius(15)
-                        Text("DFS")
-                            .font(.title)
-                            .foregroundColor(Color.black)
+                    // set start button
+                    Button {
+                        settingStart = !settingStart
+                        if (settingTarget) {
+                            settingTarget = false
+                        }
+                    } label: {
+                        if (settingStart) {
+                            Text("Setting Start Position...")
+                                .font(.system(size: 24))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.blue)
+                        } else {
+                            Text("Set Start Position")
+                                .font(.system(size: 24))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.blue)
+                        }
                     }
+                    
+                    // set target button
+                    Button {
+                        settingTarget = !settingTarget
+                        if (settingStart) {
+                            settingStart = false
+                        }
+                    } label: {
+                        if (settingTarget) {
+                            Text("Setting Target Position...")
+                                .font(.system(size: 24))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.blue)
+                        } else {
+                            Text("Set Target Position")
+                                .font(.system(size: 24))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.blue)
+                        }
+                    }
+                    
                 }
-                Spacer()
-            }
-            .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
-            
-            HStack {
-                Button {
-                    var newMaze: [[Color]] = Array(repeating: Array(repeating: Color.black, count: ROWS), count: COLS)
-                    generateUniqueMaze(&newMaze, (1, 1))
-                    colours = newMaze
-                } label: {
-                    ZStack {
-                        Rectangle()
-                            .frame(width: 180, height: 70)
-                            .cornerRadius(15)
-                        Text("Generate \nUnique Maze")
-                            .font(.title)
-                            .foregroundColor(Color.black)
+                // BFS and DFS
+                HStack {
+                    Spacer()
+                    Button {
+                        BFS()
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 180, height: 100)
+                                .cornerRadius(15)
+                            Text("BFS")
+                                .font(.title)
+                                .foregroundColor(Color.black)
+                        }
                     }
-                    .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
+                    
+                    Spacer()
+                    
+                    Button {
+                        findPathDFS()
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 180, height: 100)
+                                .cornerRadius(15)
+                            Text("DFS")
+                                .font(.title)
+                                .foregroundColor(Color.black)
+                        }
+                    }
+                    Spacer()
                 }
-                
-                Button {
-                    clearSolution()
-                } label: {
-                    ZStack {
-                        Rectangle()
-                            .frame(width: 180, height: 70)
-                            .cornerRadius(15)
-                        Text("Clear Solution")
-                            .font(.title)
-                            .foregroundColor(Color.black)
+                .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
+                // Quick Maze Edit
+                HStack {
+                    Button {
+                        var newMaze: [[Color]] = Array(repeating: Array(repeating: Color.black, count: ROWS), count: COLS)
+                        generateUniqueMaze(&newMaze, (1, 1))
+                        //knockWalls(&newMaze)
+                        colours = newMaze
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 180, height: 70)
+                                .cornerRadius(15)
+                            Text("Generate \nUnique Maze")
+                                .font(.title)
+                                .foregroundColor(Color.black)
+                        }
+                        .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
                     }
-                    .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
+                    
+                    Button {
+                        clearSolution()
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 180, height: 70)
+                                .cornerRadius(15)
+                            Text("Clear Solution")
+                                .font(.title)
+                                .foregroundColor(Color.black)
+                        }
+                        .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
+                    }
+                    Button {
+                        clearAll()
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 180, height: 70)
+                                .cornerRadius(15)
+                            Text("Reset Maze")
+                                .font(.title)
+                                .foregroundColor(Color.black)
+                        }
+                        .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
+                    }
                 }
             }
         }
@@ -211,7 +237,24 @@ struct ContentView: View {
                 }
             }
         }
+        
     }
+    
+    func knockWalls(_ maze: inout [[Color]]) {
+//        if (COLS * ROWS < 100) {
+//            return
+//        }
+//        var total = COLS * ROWS
+//        var p = 0.33
+//        var n = 10
+//        while (n > 0 && total > 0) {
+//            let randomValue = Double.random(in: 0...1)
+//            if (randomValue < p) {
+//
+//            }
+//        }
+    }
+    
     
     func BFS() {
         // Guard in case the start or the target has not been set yet
@@ -270,20 +313,48 @@ struct ContentView: View {
         return false
     }
     
-    func backtrack(_ parents:[[(Int, Int)]]) {
-        for row in parents {
-            for pair in row {
-                if pair != (-1, -1) {
-                    print(String(pair.0) + ", " + String(pair.1))
-                }
-                
+    func findPathDFS() {
+        if (start == (-1, -1) || target == (-1, -1)) {return}
+        var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
+        var parents: [[(Int, Int)]] = Array(repeating: Array(repeating: (-1, -1), count: ROWS), count: COLS)
+        
+        visited[start.0][start.1] = true
+        
+        let pathFound: Bool = DFS(start, &visited, &parents)
+        
+        if pathFound {
+            backtrack(parents)
+        }
+    }
+    
+    func DFS(_ curr: (Int, Int), _ visited: inout [[Bool]], _ parents: inout [[(Int, Int)]]) -> Bool {
+        if (curr == target) {return true}
+        let x = curr.0
+        let y = curr.1
+        
+        let neighbours: [(Int, Int)] = [(x, y - 1),
+                                        (x + 1, y),
+                                        (x, y + 1),
+                                        (x - 1, y)]
+        
+        for pair in neighbours {
+            if (good(visited, pair)) {
+                let i = pair.0
+                let j = pair.1
+                visited[i][j] = true
+                parents[i][j] = (x, y)
+                if (i != target.0 || j != target.1) {colours[i][j] = Color.purple}
+                if DFS(pair, &visited, &parents) {return true}
             }
         }
+        return false
+    }
+    
+    func backtrack(_ parents:[[(Int, Int)]]) {
         var path: [(Int, Int)] = []
         var curr: (Int, Int) = parents[target.0][target.1]
         while (curr != (start.0, start.1)) {
             path.insert(curr, at: 0)
-            print(String(curr.0) + ", " + String(curr.1))
             curr = parents[curr.0][curr.1]
         }
         for cord in path {
