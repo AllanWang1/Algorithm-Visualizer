@@ -3,15 +3,17 @@ import SwiftUI
 
 struct ContentView: View {
     let square = Image(systemName:"square")
-    let size: CGFloat = 17
-    var COLS = 61
-    var ROWS = 33
+    let size: CGFloat = 25
+    var COLS = 47
+    var ROWS = 25
+    
     @State private var colours: [[Color]]
     
     @State var settingStart:Bool = false
     @State var start: (Int, Int) = (-1, -1)
     @State var settingTarget:Bool = false
     @State var target: (Int, Int) = (-1, -1)
+    @State var solutionPath: [(Int, Int)] = []
     
     init() {
         _colours = State(initialValue: Array(repeating: (Array(repeating: Color.white, count: ROWS)), count: COLS))
@@ -57,6 +59,7 @@ struct ContentView: View {
                 .frame(width: MAPWIDTH, height: MAPHEIGHT)
                 .border(Color.black, width: 2)
                 
+                
                 // Editors
                 HStack {
                     
@@ -101,7 +104,7 @@ struct ContentView: View {
                     }
                     
                 }
-                // BFS and DFS
+                // Quick edit and solutions
                 HStack {
                     Spacer()
                     Button {
@@ -117,25 +120,6 @@ struct ContentView: View {
                         }
                     }
                     
-                    Spacer()
-                    
-                    Button {
-                        findPathDFS()
-                    } label: {
-                        ZStack {
-                            Rectangle()
-                                .frame(width: 180, height: 100)
-                                .cornerRadius(15)
-                            Text("DFS")
-                                .font(.title)
-                                .foregroundColor(Color.black)
-                        }
-                    }
-                    Spacer()
-                }
-                .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
-                // Quick Maze Edit
-                HStack {
                     Button {
                         var newMaze: [[Color]] = Array(repeating: Array(repeating: Color.black, count: ROWS), count: COLS)
                         generateUniqueMaze(&newMaze, (1, 1))
@@ -179,7 +163,24 @@ struct ContentView: View {
                         }
                         .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
                     }
+
+                    
+                    Button {
+                        findPathDFS()
+                    } label: {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 180, height: 100)
+                                .cornerRadius(15)
+                            Text("DFS")
+                                .font(.title)
+                                .foregroundColor(Color.black)
+                        }
+                    }
+                    Spacer()
                 }
+                .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
+                
             }
         }
         
@@ -277,7 +278,8 @@ struct ContentView: View {
             let y = curr.1
             if x == target.0 && y == target.1 {
                 print("found target")
-                backtrack(parents)
+                solutionPath = backtrack(parents)
+                animatePath(0)
                 break
             }
             toVisit.dequeue()
@@ -315,6 +317,7 @@ struct ContentView: View {
     
     func findPathDFS() {
         if (start == (-1, -1) || target == (-1, -1)) {return}
+        clearSolution()
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
         var parents: [[(Int, Int)]] = Array(repeating: Array(repeating: (-1, -1), count: ROWS), count: COLS)
         
@@ -322,8 +325,10 @@ struct ContentView: View {
         
         let pathFound: Bool = DFS(start, &visited, &parents)
         
+        
         if pathFound {
-            backtrack(parents)
+            solutionPath = backtrack(parents)
+            animatePath(0)
         }
     }
     
@@ -350,15 +355,23 @@ struct ContentView: View {
         return false
     }
     
-    func backtrack(_ parents:[[(Int, Int)]]) {
+    func backtrack(_ parents:[[(Int, Int)]]) -> [(Int, Int)] {
         var path: [(Int, Int)] = []
         var curr: (Int, Int) = parents[target.0][target.1]
         while (curr != (start.0, start.1)) {
             path.insert(curr, at: 0)
             curr = parents[curr.0][curr.1]
         }
-        for cord in path {
-            colours[cord.0][cord.1] = Color.orange
+        return path
+    }
+    
+    func animatePath(_ i: Int) {
+        guard i < solutionPath.count else {return}
+        
+        let (x, y) = solutionPath[i]
+        colours[x][y] = Color.orange
+        DispatchQueue.main.asyncAfter(deadline:.now() + 0.03) {
+            animatePath(i + 1)
         }
     }
     
@@ -367,6 +380,7 @@ struct ContentView: View {
     }
     
     func clearSolution() {
+        solutionPath = []
         for x in 0..<COLS {
             for y in 0..<ROWS {
                 if (colours[x][y] != Color.black && start != (x, y) && target != (x, y)) {
@@ -377,6 +391,7 @@ struct ContentView: View {
     }
     
     func clearAll() {
+        solutionPath = []
         settingStart = false
         start = (-1, -1)
         settingTarget = false
