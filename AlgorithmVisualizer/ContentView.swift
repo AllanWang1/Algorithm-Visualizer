@@ -13,6 +13,7 @@ struct ContentView: View {
     @State var start: (Int, Int) = (-1, -1)
     @State var settingTarget:Bool = false
     @State var target: (Int, Int) = (-1, -1)
+    @State var settingWall = false
     @State var solutionPath: [(Int, Int)] = []
     @State var isAnimating = false
     
@@ -55,12 +56,24 @@ struct ContentView: View {
                     Spacer()
                     // Editors
                     Menu {
+                        
+                        // set target button
+                        Button {
+                            settingTarget.toggle()
+                            settingStart = false
+                            settingWall = false
+                        } label: {
+                            if (settingTarget) {
+                                Label("Editing Target Position...", systemImage: "checkmark.circle.fill")
+                            } else {
+                                Label("Edit Target Position", systemImage: "flag.checkered")
+                            }
+                        }
                         // set start button
                         Button {
                             settingStart.toggle()
-                            if (settingTarget) {
-                                settingTarget = false
-                            }
+                            settingTarget = false
+                            settingWall = false
                         } label: {
                             if (settingStart) {
                                 Label("Editing Start Position...", systemImage: "checkmark.circle.fill")
@@ -69,17 +82,15 @@ struct ContentView: View {
                             }
                         }
                         
-                        // set target button
                         Button {
-                            settingTarget.toggle()
-                            if (settingStart) {
-                                settingStart = false
-                            }
+                            settingWall.toggle()
+                            settingStart = false
+                            settingTarget = false
                         } label: {
-                            if (settingTarget) {
-                                Label("Editing Target Position...", systemImage: "checkmark.circle.fill")
+                            if (settingWall) {
+                                Label("Editing Walls...", systemImage: "checkmark.circle.fill")
                             } else {
-                                Label("Edit Target Position", systemImage: "flag.checkered")
+                                Label("Edit Walls", systemImage: "rectangle.split.3x3.fill")
                             }
                         }
                         
@@ -88,10 +99,14 @@ struct ContentView: View {
                             Circle()
                                 .fill(Color(red: 160/255, green: 153/255, blue: 1))
                                 .frame(width: 100, height: 100)
-                            Text("Editor")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.black)
+                            
+                            HStack {
+                                Text("Editor")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                Image(systemName: "square.and.pencil")
+                            }
+                            .foregroundColor(Color.black)
                         }
                     }
                     Button {
@@ -192,17 +207,14 @@ struct ContentView: View {
                 target = (x, y)
             }
         }
-        
-        else if (colours[x][y] == Color.black) {
-            // deal with start and target blocks
+        else if (settingWall) {
             if (start == (x, y)) {start = (-1, -1)}
             if (target == (x, y)) {target = (-1, -1)}
-            colours[x][y] = Color.white
-        } else {
-            // deal with start and target blocks
-            if (start == (x, y)) {start = (-1, -1)}
-            if (target == (x, y)) {target = (-1, -1)}
-            colours[x][y] = Color.black
+            if (colours[x][y] == Color.black) {
+                colours[x][y] = Color.white
+            } else {
+                colours[x][y] = Color.black
+            }
         }
     }
     
