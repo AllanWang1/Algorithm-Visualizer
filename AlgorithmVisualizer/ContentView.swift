@@ -123,51 +123,6 @@ struct ContentView: View {
                     }
                     
                     Button {
-                        var newMaze: [[Color]] = Array(repeating: Array(repeating: Color.black, count: ROWS), count: COLS)
-                        generateUniqueMaze(&newMaze, (1, 1))
-                        //knockWalls(&newMaze)
-                        colours = newMaze
-                    } label: {
-                        ZStack {
-                            Rectangle()
-                                .frame(width: 180, height: 70)
-                                .cornerRadius(15)
-                            Text("Generate \nUnique Maze")
-                                .font(.title)
-                                .foregroundColor(Color.black)
-                        }
-                        .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
-                    }
-                    
-                    Button {
-                        clearSolution()
-                    } label: {
-                        ZStack {
-                            Rectangle()
-                                .frame(width: 180, height: 70)
-                                .cornerRadius(15)
-                            Text("Clear Solution")
-                                .font(.title)
-                                .foregroundColor(Color.black)
-                        }
-                        .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
-                    }
-                    Button {
-                        clearAll()
-                    } label: {
-                        ZStack {
-                            Rectangle()
-                                .frame(width: 180, height: 70)
-                                .cornerRadius(15)
-                            Text("Reset Maze")
-                                .font(.title)
-                                .foregroundColor(Color.black)
-                        }
-                        .foregroundColor(Color(red: 255/255, green: 200/255, blue: 150/255))
-                    }
-
-                    
-                    Button {
                         findPathDFS()
                     } label: {
                         ZStack {
@@ -177,6 +132,45 @@ struct ContentView: View {
                             Text("DFS")
                                 .font(.title)
                                 .foregroundColor(Color.black)
+                        }
+                    }
+                    
+                    Menu {
+                        
+                        // reset maze
+                        Button {
+                            clearAll()
+                        } label: {
+                            Label("Reset Maze", systemImage: "arrow.2.circlepath.circle")
+                        }
+                        // clear solution
+                        Button {
+                            clearSolution()
+                        } label: {
+                            Label("Clear Solution", systemImage: "trash.circle.fill")
+                        }
+                        // generate random
+                        Button {
+                            var newMaze: [[Color]] = Array(repeating: Array(repeating: Color.black, count: ROWS), count: COLS)
+                            generateUniqueMaze(&newMaze, (1, 1))
+                            colours = newMaze
+                        } label: {
+                            Label("Generate Maze", systemImage: "scribble.variable")
+                        }
+                        
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color(red: 160/255, green: 153/255, blue: 1))
+                                .frame(width: 150, height: 100)
+                            
+                            HStack {
+                                Text("Quick Edit")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                Image(systemName: "square.and.pencil")
+                            }
+                            .foregroundColor(Color.black)
                         }
                     }
                     Spacer()
