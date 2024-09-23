@@ -14,6 +14,7 @@ struct ContentView: View {
     @State var settingTarget:Bool = false
     @State var target: (Int, Int) = (-1, -1)
     @State var solutionPath: [(Int, Int)] = []
+    @State var isAnimating = false
     
     init() {
         _colours = State(initialValue: Array(repeating: (Array(repeating: Color.white, count: ROWS)), count: COLS))
@@ -26,17 +27,6 @@ struct ContentView: View {
                    
         ZStack {
             VStack {
-                Spacer()
-                // Editor, grid, and space on the right
-    //            HStack {
-    //                ZStack {
-    //                    Rectangle()
-    //                        .frame(width: 180, height: 300)
-    //                        .cornerRadius(15)
-    //
-    //                }
-    //
-    //            }
                 VStack(spacing: 0) {
                     ForEach(0..<ROWS, id:\.self) { row in
                         HStack(spacing:0) {
@@ -60,53 +50,50 @@ struct ContentView: View {
                 .border(Color.black, width: 2)
                 
                 
-                // Editors
-                HStack {
-                    
-                    // set start button
-                    Button {
-                        settingStart = !settingStart
-                        if (settingTarget) {
-                            settingTarget = false
-                        }
-                    } label: {
-                        if (settingStart) {
-                            Text("Setting Start Position...")
-                                .font(.system(size: 24))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.blue)
-                        } else {
-                            Text("Set Start Position")
-                                .font(.system(size: 24))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.blue)
-                        }
-                    }
-                    
-                    // set target button
-                    Button {
-                        settingTarget = !settingTarget
-                        if (settingStart) {
-                            settingStart = false
-                        }
-                    } label: {
-                        if (settingTarget) {
-                            Text("Setting Target Position...")
-                                .font(.system(size: 24))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.blue)
-                        } else {
-                            Text("Set Target Position")
-                                .font(.system(size: 24))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.blue)
-                        }
-                    }
-                    
-                }
                 // Quick edit and solutions
                 HStack {
                     Spacer()
+                    // Editors
+                    Menu {
+                        // set start button
+                        Button {
+                            settingStart.toggle()
+                            if (settingTarget) {
+                                settingTarget = false
+                            }
+                        } label: {
+                            if (settingStart) {
+                                Label("Editing Start Position...", systemImage: "checkmark.circle.fill")
+                            } else {
+                                Label("Edit Start Position", systemImage: "mappin.and.ellipse")
+                            }
+                        }
+                        
+                        // set target button
+                        Button {
+                            settingTarget.toggle()
+                            if (settingStart) {
+                                settingStart = false
+                            }
+                        } label: {
+                            if (settingTarget) {
+                                Label("Editing Target Position...", systemImage: "checkmark.circle.fill")
+                            } else {
+                                Label("Edit Target Position", systemImage: "flag.checkered")
+                            }
+                        }
+                        
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(Color(red: 160/255, green: 153/255, blue: 1))
+                                .frame(width: 100, height: 100)
+                            Text("Editor")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.black)
+                        }
+                    }
                     Button {
                         BFS()
                     } label: {
@@ -259,10 +246,10 @@ struct ContentView: View {
     
     func BFS() {
         // Guard in case the start or the target has not been set yet
-        if (target == (-1, -1) || start == (-1, -1)) {
-            return
-        }
+        guard target != (-1, -1) && start != (-1, -1) && !isAnimating else {return}
+        
         clearSolution()
+        
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
         
         let toVisit = Queue<(Int, Int)>()
@@ -279,6 +266,7 @@ struct ContentView: View {
             if x == target.0 && y == target.1 {
                 print("found target")
                 solutionPath = backtrack(parents)
+                isAnimating = true
                 animatePath(0)
                 break
             }
@@ -316,7 +304,9 @@ struct ContentView: View {
     }
     
     func findPathDFS() {
-        if (start == (-1, -1) || target == (-1, -1)) {return}
+        guard start != (-1, -1) && target != (-1, -1) else {return}
+        guard !isAnimating else {return}
+        
         clearSolution()
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
         var parents: [[(Int, Int)]] = Array(repeating: Array(repeating: (-1, -1), count: ROWS), count: COLS)
@@ -328,6 +318,7 @@ struct ContentView: View {
         
         if pathFound {
             solutionPath = backtrack(parents)
+            isAnimating = true
             animatePath(0)
         }
     }
@@ -366,7 +357,10 @@ struct ContentView: View {
     }
     
     func animatePath(_ i: Int) {
-        guard i < solutionPath.count else {return}
+        guard i < solutionPath.count else {isAnimating = false
+            return}
+        
+        guard isAnimating else {return}
         
         let (x, y) = solutionPath[i]
         colours[x][y] = Color.orange
@@ -381,6 +375,7 @@ struct ContentView: View {
     
     func clearSolution() {
         solutionPath = []
+        isAnimating = false
         for x in 0..<COLS {
             for y in 0..<ROWS {
                 if (colours[x][y] != Color.black && start != (x, y) && target != (x, y)) {
@@ -392,6 +387,7 @@ struct ContentView: View {
     
     func clearAll() {
         solutionPath = []
+        isAnimating = false
         settingStart = false
         start = (-1, -1)
         settingTarget = false
