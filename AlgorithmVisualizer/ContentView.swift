@@ -234,22 +234,6 @@ struct ContentView: View {
         
     }
     
-    func knockWalls(_ maze: inout [[Color]]) {
-//        if (COLS * ROWS < 100) {
-//            return
-//        }
-//        var total = COLS * ROWS
-//        var p = 0.33
-//        var n = 10
-//        while (n > 0 && total > 0) {
-//            let randomValue = Double.random(in: 0...1)
-//            if (randomValue < p) {
-//
-//            }
-//        }
-    }
-    
-    
     func BFS() {
         // Guard in case the start or the target has not been set yet
         guard target != (-1, -1) && start != (-1, -1) && !isAnimating else {return}
@@ -257,6 +241,7 @@ struct ContentView: View {
         clearSolution()
         
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
+        var visitedPath: [(Int, Int)] = []
         
         let toVisit = Queue<(Int, Int)>()
         
@@ -273,7 +258,8 @@ struct ContentView: View {
                 print("found target")
                 solutionPath = backtrack(parents)
                 isAnimating = true
-                animatePath(0)
+                animateVisited(0, visitedPath)
+            
                 break
             }
             toVisit.dequeue()
@@ -288,7 +274,7 @@ struct ContentView: View {
                 let j = point.1
                 if (good(visited, point)) {
                     visited[i][j] = true
-                    if (i != target.0 || j != target.1) {colours[i][j] = Color.purple}
+                    if (i, j) != target {visitedPath.append((i, j))}
                     parents[i][j] = (x, y)
                     toVisit.enqueue(point)
                 }
@@ -316,20 +302,20 @@ struct ContentView: View {
         clearSolution()
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
         var parents: [[(Int, Int)]] = Array(repeating: Array(repeating: (-1, -1), count: ROWS), count: COLS)
-        
+        var visitedPath: [(Int, Int)] = []
         visited[start.0][start.1] = true
         
-        let pathFound: Bool = DFS(start, &visited, &parents)
+        let pathFound: Bool = DFS(start, &visited, &parents, &visitedPath)
         
         
         if pathFound {
             solutionPath = backtrack(parents)
             isAnimating = true
-            animatePath(0)
+            animateVisited(0, visitedPath)
         }
     }
     
-    func DFS(_ curr: (Int, Int), _ visited: inout [[Bool]], _ parents: inout [[(Int, Int)]]) -> Bool {
+    func DFS(_ curr: (Int, Int), _ visited: inout [[Bool]], _ parents: inout [[(Int, Int)]], _ visitedPath: inout [(Int, Int)]) -> Bool {
         if (curr == target) {return true}
         let x = curr.0
         let y = curr.1
@@ -344,9 +330,10 @@ struct ContentView: View {
                 let i = pair.0
                 let j = pair.1
                 visited[i][j] = true
+                if (i, j) != target {visitedPath.append((i, j))}
                 parents[i][j] = (x, y)
-                if (i != target.0 || j != target.1) {colours[i][j] = Color.purple}
-                if DFS(pair, &visited, &parents) {return true}
+//                if (i != target.0 || j != target.1) {colours[i][j] = Color.purple}
+                if DFS(pair, &visited, &parents, &visitedPath) {return true}
             }
         }
         return false
@@ -362,6 +349,17 @@ struct ContentView: View {
         return path
     }
     
+    func animateVisited(_ i: Int, _ path: [(Int, Int)]) {
+        guard i < path.count else {animatePath(0)
+            return}
+        guard isAnimating else {return}
+        
+        let(x, y) = path[i]
+        colours[x][y] = Color.purple
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
+            animateVisited(i + 1, path)
+        }
+    }
     func animatePath(_ i: Int) {
         guard i < solutionPath.count else {isAnimating = false
             return}
