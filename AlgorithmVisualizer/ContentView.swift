@@ -13,9 +13,10 @@ struct ContentView: View {
     @State var start: (Int, Int) = (-1, -1)
     @State var settingTarget:Bool = false
     @State var target: (Int, Int) = (-1, -1)
-    @State var settingWall = false
+    @State var settingWall = true
     @State var solutionPath: [(Int, Int)] = []
-    @State var isAnimating = false
+    @State var isAnimating: Bool = false
+    @State var slowAnimation: Bool = true
     
     init() {
         _colours = State(initialValue: Array(repeating: (Array(repeating: Color.white, count: ROWS)), count: COLS))
@@ -173,6 +174,32 @@ struct ContentView: View {
                             .foregroundColor(Color.black)
                         }
                     }
+                    VStack(alignment: .leading) {
+                        Text("Animation Mode")
+                            .fontWeight(.bold)
+                        HStack {
+                            Button {
+                                if (!slowAnimation) {
+                                    slowAnimation = true
+                                }
+                            } label: {
+                                slowAnimation ? Image(systemName:"checkmark.square") : Image(systemName:"square")
+                            }
+                            Text("Slow")
+                        }
+                        HStack {
+                            Button {
+                                if (slowAnimation) {
+                                    slowAnimation = false
+                                }
+                            } label: {
+                                !slowAnimation ? Image(systemName:"checkmark.square") : Image(systemName:"square")
+                            }
+                            Text("Fast")
+                        }
+                    }
+                    .foregroundColor(Color.black)
+                    .font(.system(size: 30))
                     Spacer()
                 }
                 .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
@@ -255,11 +282,13 @@ struct ContentView: View {
             let x = curr.0
             let y = curr.1
             if x == target.0 && y == target.1 {
-                print("found target")
                 solutionPath = backtrack(parents)
-                isAnimating = true
-                animateVisited(0, visitedPath)
-            
+                if (slowAnimation) {
+                    isAnimating = true
+                    animateVisited(0, visitedPath)
+                } else {
+                    animateFast(visitedPath)
+                }
                 break
             }
             toVisit.dequeue()
@@ -310,8 +339,14 @@ struct ContentView: View {
         
         if pathFound {
             solutionPath = backtrack(parents)
-            isAnimating = true
-            animateVisited(0, visitedPath)
+            if (slowAnimation) {
+                isAnimating = true
+                animateVisited(0, visitedPath)
+            } else {
+                animateFast(visitedPath)
+            }
+        } else {
+            noSolution()
         }
     }
     
@@ -332,7 +367,6 @@ struct ContentView: View {
                 visited[i][j] = true
                 if (i, j) != target {visitedPath.append((i, j))}
                 parents[i][j] = (x, y)
-//                if (i != target.0 || j != target.1) {colours[i][j] = Color.purple}
                 if DFS(pair, &visited, &parents, &visitedPath) {return true}
             }
         }
@@ -370,6 +404,15 @@ struct ContentView: View {
         colours[x][y] = Color.orange
         DispatchQueue.main.asyncAfter(deadline:.now() + 0.03) {
             animatePath(i + 1)
+        }
+    }
+    
+    func animateFast(_ visited: [(Int, Int)]) {
+        for cord in visited {
+            colours[cord.0][cord.1] = Color.purple
+        }
+        for cord in solutionPath {
+            colours[cord.0][cord.1] = Color.orange
         }
     }
     
