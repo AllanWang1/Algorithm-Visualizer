@@ -6,3 +6,6 @@
 //
 
 import Foundation
+class StateMachine: ObservableObject {
+    @Published var appState: AppState = .mainMenu
+}

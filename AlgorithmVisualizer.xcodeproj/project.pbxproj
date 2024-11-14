@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF3176082CE0041500E9ED5A /* StateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3176072CE0041500E9ED5A /* StateMachine.swift */; };
 		DFABD0742C8CF01100477D55 /* AlgorithmVisualizerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */; };
 		DFABD0762C8CF01100477D55 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABD0752C8CF01100477D55 /* ContentView.swift */; };
 		DFABD0782C8CF01200477D55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFABD0772C8CF01200477D55 /* Assets.xcassets */; };
@@ -15,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DF3176072CE0041500E9ED5A /* StateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateMachine.swift; sourceTree = "<group>"; };
 		DFABD0702C8CF01100477D55 /* AlgorithmVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlgorithmVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgorithmVisualizerApp.swift; sourceTree = "<group>"; };
 		DFABD0752C8CF01100477D55 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -56,6 +58,7 @@
 				DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */,
 				DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */,
 				DFABD0752C8CF01100477D55 /* ContentView.swift */,
+				DF3176072CE0041500E9ED5A /* StateMachine.swift */,
 				DFABD0772C8CF01200477D55 /* Assets.xcassets */,
 				DFABD0792C8CF01200477D55 /* Preview Content */,
 			);
@@ -143,6 +146,7 @@
 				DFABD0762C8CF01100477D55 /* ContentView.swift in Sources */,
 				DFE6E1002C921DCC0068CFD0 /* Queue.swift in Sources */,
 				DFABD0742C8CF01100477D55 /* AlgorithmVisualizerApp.swift in Sources */,
+				DF3176082CE0041500E9ED5A /* StateMachine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,7 +1,28 @@
 
 import SwiftUI
 
+enum AppState {
+    case mainMenu
+    case maze
+    case settings
+}
+
 struct ContentView: View {
+    @StateObject private var stateMachine:StateMachine = StateMachine()
+    var body: some View {
+        switch stateMachine.appState {
+        case .mainMenu:
+            MainMenuView()
+                .environmentObject(stateMachine)
+        case .maze:
+            MazeView()
+                .environmentObject(stateMachine)
+        case .settings:
+            Text("Settings")
+        }
+    }
+}
+struct MazeView: View {
     let square = Image(systemName:"square")
     let size: CGFloat = 25
     var COLS = 47
@@ -36,7 +57,7 @@ struct ContentView: View {
                                 
                                 // each square in the grid is an individual button
                                 Button {
-                                    changeWall(col, row)
+                                    changeCell(col, row)
                                     clearSolution()
                                 } label: {
                                     Rectangle()
@@ -208,10 +229,16 @@ struct ContentView: View {
         }
         
     }
-    func changeWall(_ x: Int, _ y: Int) {
-        
+    
+    
+    func changeCell(_ x: Int, _ y: Int) {
+  
         if (settingStart) {
-            if (target != (x, y)) {
+            if (start == (x, y)) {
+                start = (-1, -1)
+                colours[x][y] = Color.white
+            }
+            else if (target != (x, y)) {
                 if (start != (-1, -1)) {
                     colours[start.0][start.1] = Color.white
                 }
@@ -220,7 +247,11 @@ struct ContentView: View {
             }
         }
         else if (settingTarget) {
-            if (start != (x, y)) {
+            if (target == (x, y)) {
+                target = (-1, -1)
+                colours[x][y] = Color.white
+            }
+            else if (start != (x, y)) {
                 if (target != (-1, -1)) {
                     colours[target.0][target.1] = Color.white
                 }
@@ -443,6 +474,35 @@ struct ContentView: View {
     }
 }
 
+struct MainMenuView: View {
+    @EnvironmentObject var stateMachine: StateMachine
+    var body: some View {
+        VStack {
+            Text("Welcome to Algorithm Visualizer")
+                .font(.system(size: 50))
+                .fontWeight(.heavy)
+                .foregroundColor(Color.blue)
+            HStack {
+                Spacer()
+                Button {
+                    stateMachine.appState = .maze
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 15)
+                            .foregroundStyle(Color.teal)
+                            .frame(width: 400, height: 150)
+                        Text("BFS and DFS on a Maze")
+                            .font(.system(size: 24))
+                            .fontWeight(.black)
+                            .foregroundStyle(Color.white)
+                    }
+                }
+                Spacer()
+            }
+                
+        }
+    }
+}
 
 
 #Preview {
