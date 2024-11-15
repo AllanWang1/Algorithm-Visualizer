@@ -22,6 +22,8 @@ struct ContentView: View {
         }
     }
 }
+
+// struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
     let square = Image(systemName:"square")
     let size: CGFloat = 25
@@ -230,7 +232,11 @@ struct MazeView: View {
         
     }
     
-    
+    /// Updates the colours 2D array. The update should be reflected on screen immediately
+    ///
+    /// - Parameters:
+    ///     x: the x coordinate of the cell, or the first index of the colours 2D array
+    ///     y: the y coordinate of the cell, or the second index of colours
     func changeCell(_ x: Int, _ y: Int) {
   
         if (settingStart) {
@@ -270,7 +276,11 @@ struct MazeView: View {
         }
     }
     
-    //var newMaze: [[Color]] = Array(repeating: Array(repeating: Color.black, count: ROWS), count: COLS)
+    /// Updates maze. Argument of initial maze that is entirely made of walls is passed in at initial function call.
+    ///
+    /// - Parameters:
+    ///     maze: a 2D array storing colours. Will be modified and final result will be the updated colours.
+    ///     curr: a tuple that represents the coordinate of the current cell on the maze.
     func generateUniqueMaze(_ maze: inout [[Color]], _ curr: (Int, Int)) {
         clearAll()
         let x: Int = curr.0
@@ -292,9 +302,13 @@ struct MazeView: View {
         
     }
     
+    /// Updates maze. Performs BFS if target and start are both set, and if there is no current animation running.
+    /// Will start an animation if a solution is found.
     func BFS() {
         // Guard in case the start or the target has not been set yet
-        guard target != (-1, -1) && start != (-1, -1) && !isAnimating else {return}
+        guard target != (-1, -1) && start != (-1, -1) && !isAnimating
+        else {noSolution()
+              return}
         
         clearSolution()
         
@@ -305,6 +319,8 @@ struct MazeView: View {
         
         var parents = Array(repeating: Array(repeating: (-1, -1), count: ROWS), count: COLS)
         
+        var hasSolution = false
+        
         toVisit.enqueue(start)
         visited[start.0][start.1] = true
         
@@ -313,6 +329,7 @@ struct MazeView: View {
             let x = curr.0
             let y = curr.1
             if x == target.0 && y == target.1 {
+                hasSolution = true
                 solutionPath = backtrack(parents)
                 if (slowAnimation) {
                     isAnimating = true
@@ -320,7 +337,6 @@ struct MazeView: View {
                 } else {
                     animateFast(visitedPath)
                 }
-                break
             }
             toVisit.dequeue()
             // produce neighbours
@@ -340,9 +356,13 @@ struct MazeView: View {
                 }
             }
         }
-        noSolution()
+        if (!hasSolution) {noSolution()}
     }
     
+    /// - Parameters:
+    ///     visited: a 2D array of Bool representing whether a cell at point in colours has been visited (if maze cell has been visited).
+    ///     point: the coordinates of the cell; the indices of the cell in colours and visited.
+    /// - Returns: Bool that indicates whether the cell at point should be visited.
     func good(_ visited: [[Bool]], _ point: (Int, Int)) -> Bool {
         let x = point.0
         let y = point.1
@@ -355,6 +375,8 @@ struct MazeView: View {
         return false
     }
     
+    /// Updates the maze. Performs DFS is target and start are both set, and if there is no current animation running. Also updates solutionPath.
+    /// Will start an animation if a solution is found.
     func findPathDFS() {
         guard start != (-1, -1) && target != (-1, -1) else {return}
         guard !isAnimating else {return}
@@ -365,6 +387,7 @@ struct MazeView: View {
         var visitedPath: [(Int, Int)] = []
         visited[start.0][start.1] = true
         
+        // Checks if a path could be found by traversing the maze at the start cell.
         let pathFound: Bool = DFS(start, &visited, &parents, &visitedPath)
         
         
@@ -381,6 +404,14 @@ struct MazeView: View {
         }
     }
     
+    /// Updates the maze.
+    ///
+    /// - Parameters:
+    ///     curr: tuple that represents the coordinates of the current cell
+    ///     visited: 2D array of Bool that corresponds to whether each cell of the maze has been visited
+    ///     parents: 2D array of tuples that records the coordinate of the parent cell of each cell of the maze
+    ///     visitedPath: array of  tuples that records the order of how the cells have been visited.
+    /// - Returns:Bool that indicates if the target is found during the current run of DFS.
     func DFS(_ curr: (Int, Int), _ visited: inout [[Bool]], _ parents: inout [[(Int, Int)]], _ visitedPath: inout [(Int, Int)]) -> Bool {
         if (curr == target) {return true}
         let x = curr.0
@@ -398,12 +429,16 @@ struct MazeView: View {
                 visited[i][j] = true
                 if (i, j) != target {visitedPath.append((i, j))}
                 parents[i][j] = (x, y)
+                // Checks if a path could be found by visiting the neighbours.
                 if DFS(pair, &visited, &parents, &visitedPath) {return true}
             }
         }
         return false
     }
     
+    /// - Parameters:
+    ///     parents: 2D array of tuples that corresponds to the coordinate of each cell on the maze; parents[i][j] represents the parent cell of the cell (i, j).
+    /// - Returns: an array of tuples that represents the path of the solution, with the target at the end of the array.
     func backtrack(_ parents:[[(Int, Int)]]) -> [(Int, Int)] {
         var path: [(Int, Int)] = []
         var curr: (Int, Int) = parents[target.0][target.1]
@@ -414,17 +449,27 @@ struct MazeView: View {
         return path
     }
     
-    func animateVisited(_ i: Int, _ path: [(Int, Int)]) {
-        guard i < path.count else {animatePath(0)
+    /// Updates colours, change colours[i][j] to purple if (i, j) is in visitedPath
+    ///
+    /// - Parameters:
+    ///     i: the index of path to display. If i >= path.count then start animating the solution
+    ///     visitedPath: the path of the visited cells, stored in order of first to last.
+    func animateVisited(_ i: Int, _ visitedPath: [(Int, Int)]) {
+        guard i < visitedPath.count else {animatePath(0)
             return}
         guard isAnimating else {return}
         
-        let(x, y) = path[i]
+        let(x, y) = visitedPath[i]
         colours[x][y] = Color.purple
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
-            animateVisited(i + 1, path)
+            animateVisited(i + 1, visitedPath)
         }
     }
+    
+    /// Updates colours, change colours[i][j] to orange if (i, j) is in solutionPath.
+    ///
+    /// - Parameters:
+    ///     i: the index of solutionPath to display.
     func animatePath(_ i: Int) {
         guard i < solutionPath.count else {isAnimating = false
             return}
@@ -438,6 +483,11 @@ struct MazeView: View {
         }
     }
     
+    /// Updates colours, change colours[i][j] to purple if (i, j) is in visited, change to orange if (i, j) is in solutionPath.
+    /// The maze should be updated almost immediately, as asynchronous programming has not been implemented here.
+    ///
+    /// - Parameters:
+    ///     visited: array of tuples that represents the cells that have been visited.
     func animateFast(_ visited: [(Int, Int)]) {
         for cord in visited {
             colours[cord.0][cord.1] = Color.purple
@@ -447,10 +497,12 @@ struct MazeView: View {
         }
     }
     
+    
     func noSolution() {
         
     }
     
+    /// Updates colours. Stop animation immediately, change colours[i][j] to white if (i, j) is not a wall, the start, or the target.
     func clearSolution() {
         solutionPath = []
         isAnimating = false
@@ -463,6 +515,7 @@ struct MazeView: View {
         }
     }
     
+    /// Updates the entire maze. Resets all the state variables to their default values.
     func clearAll() {
         solutionPath = []
         isAnimating = false
