@@ -25,10 +25,11 @@ struct ContentView: View {
 
 // struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
+    @EnvironmentObject var stateMachine: StateMachine
     let square = Image(systemName:"square")
-    let size: CGFloat = 25
-    var COLS = 47
-    var ROWS = 25
+    let size: CGFloat = 30
+    var COLS = 31
+    var ROWS = 19
     
     @State private var colours: [[Color]]
     
@@ -52,6 +53,18 @@ struct MazeView: View {
                    
         ZStack {
             VStack {
+                HStack {
+                    Button {
+                        stateMachine.appState = .mainMenu
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.title)
+                            .foregroundStyle(.blue)
+                            .padding(20)
+                    }
+                    Spacer()
+                }
+                // Maze cells
                 VStack(spacing: 0) {
                     ForEach(0..<ROWS, id:\.self) { row in
                         HStack(spacing:0) {
@@ -73,7 +86,6 @@ struct MazeView: View {
                 }
                 .frame(width: MAPWIDTH, height: MAPHEIGHT)
                 .border(Color.black, width: 2)
-                
                 
                 // Quick edit and solutions
                 HStack {
@@ -203,6 +215,7 @@ struct MazeView: View {
                         HStack {
                             Button {
                                 if (!slowAnimation) {
+                                    clearSolution()
                                     slowAnimation = true
                                 }
                             } label: {
@@ -213,6 +226,7 @@ struct MazeView: View {
                         HStack {
                             Button {
                                 if (slowAnimation) {
+                                    clearSolution()
                                     slowAnimation = false
                                 }
                             } label: {
