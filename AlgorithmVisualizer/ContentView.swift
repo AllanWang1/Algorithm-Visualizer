@@ -23,6 +23,31 @@ struct ContentView: View {
     }
 }
 
+struct Settings {
+    private var mazeCellSize: CGFloat = 30;
+    private var mazeCOLS: Int = 31;
+    private var mazeROWS: Int = 19;
+    
+    mutating func setSize(_ n: CGFloat) {
+        mazeCellSize = n;
+    }
+    mutating func setCOLS(_ n: Int) {
+        mazeCOLS = n;
+    }
+    mutating func setROWS(_ n: Int) {
+        mazeROWS = n;
+    }
+    func getSize() -> CGFloat {
+        return mazeCellSize;
+    }
+    func getCOLS() -> Int {
+        return mazeCOLS;
+    }
+    func getROWS() -> Int {
+        return mazeROWS;
+    }
+}
+
 // struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
     @EnvironmentObject var stateMachine: StateMachine
@@ -33,14 +58,15 @@ struct MazeView: View {
     
     @State private var colours: [[Color]]
     
-    @State var settingStart:Bool = false
-    @State var start: (Int, Int) = (-1, -1)
-    @State var settingTarget:Bool = false
-    @State var target: (Int, Int) = (-1, -1)
-    @State var settingWall = true
-    @State var solutionPath: [(Int, Int)] = []
-    @State var isAnimating: Bool = false
-    @State var slowAnimation: Bool = true
+    @State private var settingStart: Bool = false
+    @State private var start: (Int, Int) = (-1, -1)
+    @State private var settingTarget: Bool = false
+    @State private var target: (Int, Int) = (-1, -1)
+    @State private var settingWall = true
+    
+    @State private var solutionPath: [(Int, Int)] = []
+    @State private var isAnimating: Bool = false
+    @State private var slowAnimation: Bool = true
     
     init() {
         _colours = State(initialValue: Array(repeating: (Array(repeating: Color.white, count: ROWS)), count: COLS))
@@ -545,12 +571,26 @@ struct MainMenuView: View {
     @EnvironmentObject var stateMachine: StateMachine
     var body: some View {
         VStack {
+            Spacer()
             Text("Welcome to Algorithm Visualizer")
                 .font(.system(size: 50))
                 .fontWeight(.heavy)
                 .foregroundColor(Color.blue)
-            HStack {
-                Spacer()
+            Spacer()
+            VStack {
+                Button {
+                    // Sorting algorithms
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 15)
+                            .foregroundStyle(Color.teal)
+                            .frame(width: 400, height: 150)
+                        Text("Sorting Algorithms")
+                            .font(.system(size: 24))
+                            .fontWeight(.black)
+                            .foregroundStyle(Color.white)
+                    }
+                }
                 Button {
                     stateMachine.appState = .maze
                 } label: {
@@ -558,19 +598,35 @@ struct MainMenuView: View {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(Color.teal)
                             .frame(width: 400, height: 150)
-                        Text("BFS and DFS on a Maze")
+                        Text("BFS and DFS Maze Solver")
                             .font(.system(size: 24))
                             .fontWeight(.black)
                             .foregroundStyle(Color.white)
                     }
                 }
-                Spacer()
             }
-                
+            Spacer()
+            HStack {
+                Spacer()
+                Button {
+                    
+                } label: {
+                    
+                }
+                ZStack {
+                    Circle()
+                        .foregroundStyle(Color.gray)
+                        .frame(width: 100)
+                        .padding()
+                    Image(systemName: "gear")
+                        .font(.system(size: 60))
+                        .padding()
+                        .foregroundStyle(Color.white)
+                }
+            }
         }
     }
 }
-
 
 #Preview {
     ContentView()
