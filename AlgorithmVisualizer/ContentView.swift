@@ -48,6 +48,27 @@ struct Settings {
     }
 }
 
+struct SettingsView: View {
+    @Binding var showSettings: Bool
+    
+    var body: some View {
+        VStack {
+            Text("Settings")
+                .font(.system(size: 40))
+                .fontWeight(.heavy)
+                .padding()
+            
+            Button("Close") {
+                withAnimation {
+                    showSettings = false
+                }
+            }
+            .padding()
+        }
+        .padding()
+    }
+}
+
 // struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
     @EnvironmentObject var stateMachine: StateMachine
@@ -569,59 +590,84 @@ struct MazeView: View {
 
 struct MainMenuView: View {
     @EnvironmentObject var stateMachine: StateMachine
+    @State private var showSettings: Bool = false
     var body: some View {
-        VStack {
-            Spacer()
-            Text("Welcome to Algorithm Visualizer")
-                .font(.system(size: 50))
-                .fontWeight(.heavy)
-                .foregroundColor(Color.blue)
-            Spacer()
+        ZStack {
             VStack {
-                Button {
-                    // Sorting algorithms
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 15)
-                            .foregroundStyle(Color.teal)
-                            .frame(width: 400, height: 150)
-                        Text("Sorting Algorithms")
-                            .font(.system(size: 24))
-                            .fontWeight(.black)
-                            .foregroundStyle(Color.white)
+                Spacer()
+                Text("Welcome to Algorithm Visualizer")
+                    .font(.system(size: 50))
+                    .fontWeight(.heavy)
+                    .foregroundColor(Color.blue)
+                Spacer()
+                VStack {
+                    Button {
+                        // Sorting algorithms
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15)
+                                .foregroundStyle(Color.teal)
+                                .frame(width: 400, height: 150)
+                            Text("Sorting Algorithms")
+                                .font(.system(size: 24))
+                                .fontWeight(.black)
+                                .foregroundStyle(Color.white)
+                        }
+                    }
+                    Button {
+                        stateMachine.appState = .maze
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15)
+                                .foregroundStyle(Color.teal)
+                                .frame(width: 400, height: 150)
+                            Text("BFS and DFS Maze Solver")
+                                .font(.system(size: 24))
+                                .fontWeight(.black)
+                                .foregroundStyle(Color.white)
+                        }
                     }
                 }
-                Button {
-                    stateMachine.appState = .maze
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 15)
-                            .foregroundStyle(Color.teal)
-                            .frame(width: 400, height: 150)
-                        Text("BFS and DFS Maze Solver")
-                            .font(.system(size: 24))
-                            .fontWeight(.black)
-                            .foregroundStyle(Color.white)
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button {
+                        withAnimation {
+                            showSettings = true
+                        }
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .foregroundStyle(Color.gray)
+                                .frame(width: 100)
+                                .padding()
+                            Image(systemName: "gear")
+                                .font(.system(size: 60))
+                                .padding()
+                                .foregroundStyle(Color.white)
+                        }
                     }
                 }
             }
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    
-                } label: {
-                    
-                }
+            
+            if showSettings {
                 ZStack {
-                    Circle()
-                        .foregroundStyle(Color.gray)
-                        .frame(width: 100)
-                        .padding()
-                    Image(systemName: "gear")
-                        .font(.system(size: 60))
-                        .padding()
-                        .foregroundStyle(Color.white)
+                    Color.gray.opacity(0.4)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        .onTapGesture {
+                            withAnimation {
+                                showSettings = false
+                            }
+                        }
+                    
+                    //ultraThinMaterial will blur what is behind the settings menu
+                    SettingsView(showSettings: $showSettings)
+                        .frame(maxWidth: 700, maxHeight: 900)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .shadow(radius: 10)
+                        .transition(.scale)
                 }
             }
         }
