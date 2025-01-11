@@ -8,59 +8,97 @@ enum AppState {
 }
 
 struct ContentView: View {
-    @StateObject private var stateMachine:StateMachine = StateMachine()
+    @StateObject private var stateMachine: StateMachine = StateMachine()
+    @StateObject private var settings: Settings = Settings()
+    
+    
     var body: some View {
         switch stateMachine.appState {
         case .mainMenu:
             MainMenuView()
                 .environmentObject(stateMachine)
+                .environmentObject(settings)
         case .maze:
-            MazeView()
+            MazeView(settings.mazeCOLS, settings.mazeROWS)
                 .environmentObject(stateMachine)
+                .environmentObject(settings)
         case .settings:
-            Text("Settings")
+            ZStack {
+                MainMenuView()
+                Color.gray.opacity(0.4)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .onTapGesture {
+                        withAnimation {
+                            stateMachine.appState = .mainMenu
+                        }
+                    }
+                
+                //ultraThinMaterial will blur what is behind the settings menu
+                SettingsView()
+                    .frame(maxWidth: 700, maxHeight: 900)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .shadow(radius: 10)
+                    .transition(.scale)
+                    .environmentObject(stateMachine)
+                    .environmentObject(settings)
+            }
         }
     }
 }
 
-struct Settings {
-    private var mazeCellSize: CGFloat = 30;
-    private var mazeCOLS: Int = 31;
-    private var mazeROWS: Int = 19;
-    
-    mutating func setSize(_ n: CGFloat) {
-        mazeCellSize = n;
-    }
-    mutating func setCOLS(_ n: Int) {
-        mazeCOLS = n;
-    }
-    mutating func setROWS(_ n: Int) {
-        mazeROWS = n;
-    }
-    func getSize() -> CGFloat {
-        return mazeCellSize;
-    }
-    func getCOLS() -> Int {
-        return mazeCOLS;
-    }
-    func getROWS() -> Int {
-        return mazeROWS;
-    }
-}
-
 struct SettingsView: View {
-    @Binding var showSettings: Bool
+    @EnvironmentObject var stateMachine: StateMachine
+    @EnvironmentObject var settings: Settings
     
     var body: some View {
+        
         VStack {
             Text("Settings")
                 .font(.system(size: 40))
                 .fontWeight(.heavy)
                 .padding()
+            // toggles for maze settings
+            VStack {
+                HStack {
+                    Text("Maze")
+                        .font(.system(size: 30))
+                        .fontWeight(.medium)
+                        .padding(.leading, 100.0)
+                    Spacer()
+                }
+                .padding(.bottom, 10)
+                HStack {
+                    Text("Rows")
+                        .padding(.leading, 120)
+                        .font(.system(size: 20))
+                    Slider(value: Binding(
+                            get: { Double(settings.mazeROWS) },
+                            set: { settings.setROWS(Int($0)) }),
+                           in: 2...25,
+                           step: 1)
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 8)
+                HStack {
+                    Text("Columns")
+                        .padding(.leading, 120)
+                        .font(.system(size: 20))
+                    Slider(value: Binding(
+                            get: { Double(settings.mazeCOLS) },
+                            set: { settings.setCOLS(Int($0)) }),
+                           in: 2...40,
+                           step: 1)
+                    Spacer()
+                }
+                .padding(.bottom, 8)
+            }
             
             Button("Close") {
                 withAnimation {
-                    showSettings = false
+                    stateMachine.appState = .mainMenu
                 }
             }
             .padding()
@@ -72,10 +110,13 @@ struct SettingsView: View {
 // struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
     @EnvironmentObject var stateMachine: StateMachine
+    @EnvironmentObject var settings: Settings
     let square = Image(systemName:"square")
     let size: CGFloat = 30
-    var COLS = 31
-    var ROWS = 19
+    
+    // Dynamically computed properties, based on settings
+    private var COLS: Int
+    private var ROWS: Int
     
     @State private var colours: [[Color]]
     
@@ -89,15 +130,17 @@ struct MazeView: View {
     @State private var isAnimating: Bool = false
     @State private var slowAnimation: Bool = true
     
-    init() {
-        _colours = State(initialValue: Array(repeating: (Array(repeating: Color.white, count: ROWS)), count: COLS))
+    init (_ x: Int, _ y: Int) {
+        colours = Array(repeating: Array(repeating: Color.white, count: y), count: x)
+        COLS = x
+        ROWS = y
     }
     
     var body: some View {
         
         let MAPWIDTH: CGFloat = CGFloat(CGFloat(COLS) * size)
         let MAPHEIGHT: CGFloat = CGFloat(CGFloat(ROWS) * size)
-                   
+       
         ZStack {
             VStack {
                 HStack {
@@ -586,10 +629,12 @@ struct MazeView: View {
         target = (-1, -1)
         colours = Array(repeating: Array(repeating: Color.white, count: ROWS), count: COLS)
     }
+    
 }
 
 struct MainMenuView: View {
     @EnvironmentObject var stateMachine: StateMachine
+    @EnvironmentObject var settings: Settings
     @State private var showSettings: Bool = false
     var body: some View {
         ZStack {
@@ -633,7 +678,7 @@ struct MainMenuView: View {
                     Spacer()
                     Button {
                         withAnimation {
-                            showSettings = true
+                            stateMachine.appState = .settings
                         }
                     } label: {
                         ZStack {
@@ -647,27 +692,6 @@ struct MainMenuView: View {
                                 .foregroundStyle(Color.white)
                         }
                     }
-                }
-            }
-            
-            if showSettings {
-                ZStack {
-                    Color.gray.opacity(0.4)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-                        .onTapGesture {
-                            withAnimation {
-                                showSettings = false
-                            }
-                        }
-                    
-                    //ultraThinMaterial will blur what is behind the settings menu
-                    SettingsView(showSettings: $showSettings)
-                        .frame(maxWidth: 700, maxHeight: 900)
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .shadow(radius: 10)
-                        .transition(.scale)
                 }
             }
         }
