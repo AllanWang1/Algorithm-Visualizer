@@ -3,29 +3,33 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		DF3176082CE0041500E9ED5A /* StateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3176072CE0041500E9ED5A /* StateMachine.swift */; };
 		DFABD0742C8CF01100477D55 /* AlgorithmVisualizerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */; };
-		DFABD0762C8CF01100477D55 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABD0752C8CF01100477D55 /* ContentView.swift */; };
 		DFABD0782C8CF01200477D55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFABD0772C8CF01200477D55 /* Assets.xcassets */; };
 		DFABD07B2C8CF01200477D55 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFABD07A2C8CF01200477D55 /* Preview Assets.xcassets */; };
 		DFE6E1002C921DCC0068CFD0 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */; };
 		DFF358FD2D2E16F400ED5CD9 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF358FC2D2E16F400ED5CD9 /* Settings.swift */; };
+		DFF359092D34A60400ED5CD9 /* Definitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF359082D34A60400ED5CD9 /* Definitions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		DF3176072CE0041500E9ED5A /* StateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateMachine.swift; sourceTree = "<group>"; };
 		DFABD0702C8CF01100477D55 /* AlgorithmVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlgorithmVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgorithmVisualizerApp.swift; sourceTree = "<group>"; };
-		DFABD0752C8CF01100477D55 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DFABD0772C8CF01200477D55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFABD07A2C8CF01200477D55 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		DFF358FC2D2E16F400ED5CD9 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		DFF359082D34A60400ED5CD9 /* Definitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Definitions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DFF358FE2D34A41600ED5CD9 /* Views */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Views; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DFABD06D2C8CF01100477D55 /* Frameworks */ = {
@@ -57,10 +61,11 @@
 		DFABD0722C8CF01100477D55 /* AlgorithmVisualizer */ = {
 			isa = PBXGroup;
 			children = (
+				DFF359082D34A60400ED5CD9 /* Definitions.swift */,
+				DFF358FE2D34A41600ED5CD9 /* Views */,
 				DFF358FC2D2E16F400ED5CD9 /* Settings.swift */,
 				DFE6E0FF2C921DCC0068CFD0 /* Queue.swift */,
 				DFABD0732C8CF01100477D55 /* AlgorithmVisualizerApp.swift */,
-				DFABD0752C8CF01100477D55 /* ContentView.swift */,
 				DF3176072CE0041500E9ED5A /* StateMachine.swift */,
 				DFABD0772C8CF01200477D55 /* Assets.xcassets */,
 				DFABD0792C8CF01200477D55 /* Preview Content */,
@@ -90,6 +95,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DFF358FE2D34A41600ED5CD9 /* Views */,
 			);
 			name = AlgorithmVisualizer;
 			productName = AlgorithmVisualizer;
@@ -146,7 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFABD0762C8CF01100477D55 /* ContentView.swift in Sources */,
+				DFF359092D34A60400ED5CD9 /* Definitions.swift in Sources */,
 				DFE6E1002C921DCC0068CFD0 /* Queue.swift in Sources */,
 				DFABD0742C8CF01100477D55 /* AlgorithmVisualizerApp.swift in Sources */,
 				DF3176082CE0041500E9ED5A /* StateMachine.swift in Sources */,

@@ -1,139 +1,41 @@
-
 import SwiftUI
 
-enum AppState {
-    case mainMenu
-    case maze
-    case settings
+private class Action: ObservableObject {
+    @Published var editingStart: Bool = false;
+    @Published var editingTarget: Bool = false;
+    @Published var editingWall: Bool = true;
+    @Published var isAnimating: Bool = false;
+    @Published var slowAnimation: Bool = false;
 }
 
-struct ContentView: View {
-    @StateObject private var stateMachine: StateMachine = StateMachine()
-    @StateObject private var settings: Settings = Settings()
-    
-    
-    var body: some View {
-        switch stateMachine.appState {
-        case .mainMenu:
-            MainMenuView()
-                .environmentObject(stateMachine)
-                .environmentObject(settings)
-        case .maze:
-            MazeView(settings.mazeCOLS, settings.mazeROWS)
-                .environmentObject(stateMachine)
-                .environmentObject(settings)
-        case .settings:
-            ZStack {
-                MainMenuView()
-                Color.gray.opacity(0.4)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                    .onTapGesture {
-                        withAnimation {
-                            stateMachine.appState = .mainMenu
-                        }
-                    }
-                
-                //ultraThinMaterial will blur what is behind the settings menu
-                SettingsView()
-                    .frame(maxWidth: 700, maxHeight: 900)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .shadow(radius: 10)
-                    .transition(.scale)
-                    .environmentObject(stateMachine)
-                    .environmentObject(settings)
-            }
-        }
-    }
+private class Maze: ObservableObject {
+    @Published var start: (Int, Int) = (-1 , -1)
+    @Published var target: (Int, Int) = (-1, -1)
 }
-
-struct SettingsView: View {
-    @EnvironmentObject var stateMachine: StateMachine
-    @EnvironmentObject var settings: Settings
-    
-    var body: some View {
-        
-        VStack {
-            Text("Settings")
-                .font(.system(size: 40))
-                .fontWeight(.heavy)
-                .padding()
-            // toggles for maze settings
-            VStack {
-                HStack {
-                    Text("Maze")
-                        .font(.system(size: 30))
-                        .fontWeight(.medium)
-                        .padding(.leading, 100.0)
-                    Spacer()
-                }
-                .padding(.bottom, 10)
-                HStack {
-                    Text("Rows")
-                        .padding(.leading, 120)
-                        .font(.system(size: 20))
-                    Slider(value: Binding(
-                            get: { Double(settings.mazeROWS) },
-                            set: { settings.setROWS(Int($0)) }),
-                           in: 2...25,
-                           step: 1)
-                    
-                    Spacer()
-                }
-                .padding(.bottom, 8)
-                HStack {
-                    Text("Columns")
-                        .padding(.leading, 120)
-                        .font(.system(size: 20))
-                    Slider(value: Binding(
-                            get: { Double(settings.mazeCOLS) },
-                            set: { settings.setCOLS(Int($0)) }),
-                           in: 2...40,
-                           step: 1)
-                    Spacer()
-                }
-                .padding(.bottom, 8)
-            }
-            
-            Button("Close") {
-                withAnimation {
-                    stateMachine.appState = .mainMenu
-                }
-            }
-            .padding()
-        }
-        .padding()
-    }
-}
-
 // struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
     @EnvironmentObject var stateMachine: StateMachine
     @EnvironmentObject var settings: Settings
-    let square = Image(systemName:"square")
-    let size: CGFloat = 30
     
-    // Dynamically computed properties, based on settings
-    private var COLS: Int
-    private var ROWS: Int
+    // Properties are based on settings.
+    private let COLS: Int
+    private let ROWS: Int
+    private let size: CGFloat
     
     @State private var colours: [[Color]]
+
+    // Class type -> instances are objects
+    @StateObject private var action: Action = Action()
+    @StateObject private var maze: Maze = Maze()
     
-    @State private var settingStart: Bool = false
-    @State private var start: (Int, Int) = (-1, -1)
-    @State private var settingTarget: Bool = false
-    @State private var target: (Int, Int) = (-1, -1)
-    @State private var settingWall = true
     
     @State private var solutionPath: [(Int, Int)] = []
-    @State private var isAnimating: Bool = false
-    @State private var slowAnimation: Bool = true
     
-    init (_ x: Int, _ y: Int) {
+    init (_ x: Int, _ y: Int, _ s: CGFloat) {
         colours = Array(repeating: Array(repeating: Color.white, count: y), count: x)
         COLS = x
         ROWS = y
+        size = s
     }
     
     var body: some View {
@@ -185,11 +87,11 @@ struct MazeView: View {
                         
                         // set target button
                         Button {
-                            settingTarget.toggle()
-                            settingStart = false
-                            settingWall = false
+                            action.editingTarget = true
+                            action.editingStart = false
+                            action.editingWall = false
                         } label: {
-                            if (settingTarget) {
+                            if (action.editingTarget) {
                                 Label("Editing Target Position...", systemImage: "checkmark.circle.fill")
                             } else {
                                 Label("Edit Target Position", systemImage: "flag.checkered")
@@ -197,11 +99,11 @@ struct MazeView: View {
                         }
                         // set start button
                         Button {
-                            settingStart.toggle()
-                            settingTarget = false
-                            settingWall = false
+                            action.editingStart.toggle()
+                            action.editingTarget = false
+                            action.editingWall = false
                         } label: {
-                            if (settingStart) {
+                            if (action.editingStart) {
                                 Label("Editing Start Position...", systemImage: "checkmark.circle.fill")
                             } else {
                                 Label("Edit Start Position", systemImage: "mappin.and.ellipse")
@@ -209,11 +111,11 @@ struct MazeView: View {
                         }
                         
                         Button {
-                            settingWall.toggle()
-                            settingStart = false
-                            settingTarget = false
+                            action.editingWall.toggle()
+                            action.editingStart = false
+                            action.editingTarget = false
                         } label: {
-                            if (settingWall) {
+                            if (action.editingWall) {
                                 Label("Editing Walls...", systemImage: "checkmark.circle.fill")
                             } else {
                                 Label("Edit Walls", systemImage: "rectangle.split.3x3.fill")
@@ -261,6 +163,7 @@ struct MazeView: View {
                         }
                     }
                     
+                    // Quick Edit
                     Menu {
                         
                         // reset maze
@@ -304,23 +207,23 @@ struct MazeView: View {
                             .fontWeight(.bold)
                         HStack {
                             Button {
-                                if (!slowAnimation) {
+                                if (!action.slowAnimation) {
                                     clearSolution()
-                                    slowAnimation = true
+                                    action.slowAnimation = true
                                 }
                             } label: {
-                                slowAnimation ? Image(systemName:"checkmark.square") : Image(systemName:"square")
+                                action.slowAnimation ? Image(systemName:"checkmark.square") : Image(systemName:"square")
                             }
                             Text("Slow")
                         }
                         HStack {
                             Button {
-                                if (slowAnimation) {
+                                if (action.slowAnimation) {
                                     clearSolution()
-                                    slowAnimation = false
+                                    action.slowAnimation = false
                                 }
                             } label: {
-                                !slowAnimation ? Image(systemName:"checkmark.square") : Image(systemName:"square")
+                                !action.slowAnimation ? Image(systemName:"checkmark.square") : Image(systemName:"square")
                             }
                             Text("Fast")
                         }
@@ -343,35 +246,35 @@ struct MazeView: View {
     ///     y: the y coordinate of the cell, or the second index of colours
     func changeCell(_ x: Int, _ y: Int) {
   
-        if (settingStart) {
-            if (start == (x, y)) {
-                start = (-1, -1)
+        if (action.editingStart) {
+            if (maze.start == (x, y)) {
+                maze.start = (-1, -1)
                 colours[x][y] = Color.white
             }
-            else if (target != (x, y)) {
-                if (start != (-1, -1)) {
-                    colours[start.0][start.1] = Color.white
+            else if (maze.target != (x, y)) {
+                if (maze.start != (-1, -1)) {
+                    colours[maze.start.0][maze.start.1] = Color.white
                 }
                 colours[x][y] = Color.cyan
-                start = (x, y)
+                maze.start = (x, y)
             }
         }
-        else if (settingTarget) {
-            if (target == (x, y)) {
-                target = (-1, -1)
+        else if (action.editingTarget) {
+            if (maze.target == (x, y)) {
+                maze.target = (-1, -1)
                 colours[x][y] = Color.white
             }
-            else if (start != (x, y)) {
-                if (target != (-1, -1)) {
-                    colours[target.0][target.1] = Color.white
+            else if (maze.start != (x, y)) {
+                if (maze.target != (-1, -1)) {
+                    colours[maze.target.0][maze.target.1] = Color.white
                 }
                 colours[x][y] = Color.red
-                target = (x, y)
+                maze.target = (x, y)
             }
         }
-        else if (settingWall) {
-            if (start == (x, y)) {start = (-1, -1)}
-            if (target == (x, y)) {target = (-1, -1)}
+        else if (action.editingWall) {
+            if (maze.start == (x, y)) {maze.start = (-1, -1)}
+            if (maze.target == (x, y)) {maze.target = (-1, -1)}
             if (colours[x][y] == Color.black) {
                 colours[x][y] = Color.white
             } else {
@@ -410,7 +313,7 @@ struct MazeView: View {
     /// Will start an animation if a solution is found.
     func BFS() {
         // Guard in case the start or the target has not been set yet
-        guard target != (-1, -1) && start != (-1, -1) && !isAnimating
+        guard maze.target != (-1, -1) && maze.start != (-1, -1) && !action.isAnimating
         else {noSolution()
               return}
         
@@ -425,18 +328,18 @@ struct MazeView: View {
         
         var hasSolution = false
         
-        toVisit.enqueue(start)
-        visited[start.0][start.1] = true
+        toVisit.enqueue(maze.start)
+        visited[maze.start.0][maze.start.1] = true
         
         while (!toVisit.isEmpty) {
             let curr: (Int, Int) = toVisit.front!
             let x = curr.0
             let y = curr.1
-            if x == target.0 && y == target.1 {
+            if x == maze.target.0 && y == maze.target.1 {
                 hasSolution = true
                 solutionPath = backtrack(parents)
-                if (slowAnimation) {
-                    isAnimating = true
+                if (action.slowAnimation) {
+                    action.isAnimating = true
                     animateVisited(0, visitedPath)
                 } else {
                     animateFast(visitedPath)
@@ -454,7 +357,7 @@ struct MazeView: View {
                 let j = point.1
                 if (good(visited, point)) {
                     visited[i][j] = true
-                    if (i, j) != target {visitedPath.append((i, j))}
+                    if (i, j) != maze.target {visitedPath.append((i, j))}
                     parents[i][j] = (x, y)
                     toVisit.enqueue(point)
                 }
@@ -482,23 +385,23 @@ struct MazeView: View {
     /// Updates the maze. Performs DFS is target and start are both set, and if there is no current animation running. Also updates solutionPath.
     /// Will start an animation if a solution is found.
     func findPathDFS() {
-        guard start != (-1, -1) && target != (-1, -1) else {return}
-        guard !isAnimating else {return}
+        guard maze.start != (-1, -1) && maze.target != (-1, -1) else {return}
+        guard !action.isAnimating else {return}
         
         clearSolution()
         var visited: [[Bool]] = Array(repeating: Array(repeating: false, count: ROWS), count: COLS)
         var parents: [[(Int, Int)]] = Array(repeating: Array(repeating: (-1, -1), count: ROWS), count: COLS)
         var visitedPath: [(Int, Int)] = []
-        visited[start.0][start.1] = true
+        visited[maze.start.0][maze.start.1] = true
         
         // Checks if a path could be found by traversing the maze at the start cell.
-        let pathFound: Bool = DFS(start, &visited, &parents, &visitedPath)
+        let pathFound: Bool = DFS(maze.start, &visited, &parents, &visitedPath)
         
         
         if pathFound {
             solutionPath = backtrack(parents)
-            if (slowAnimation) {
-                isAnimating = true
+            if (action.slowAnimation) {
+                action.isAnimating = true
                 animateVisited(0, visitedPath)
             } else {
                 animateFast(visitedPath)
@@ -517,7 +420,7 @@ struct MazeView: View {
     ///     visitedPath: array of  tuples that records the order of how the cells have been visited.
     /// - Returns:Bool that indicates if the target is found during the current run of DFS.
     func DFS(_ curr: (Int, Int), _ visited: inout [[Bool]], _ parents: inout [[(Int, Int)]], _ visitedPath: inout [(Int, Int)]) -> Bool {
-        if (curr == target) {return true}
+        if (curr == maze.target) {return true}
         let x = curr.0
         let y = curr.1
         
@@ -531,7 +434,7 @@ struct MazeView: View {
                 let i = pair.0
                 let j = pair.1
                 visited[i][j] = true
-                if (i, j) != target {visitedPath.append((i, j))}
+                if (i, j) != maze.target {visitedPath.append((i, j))}
                 parents[i][j] = (x, y)
                 // Checks if a path could be found by visiting the neighbours.
                 if DFS(pair, &visited, &parents, &visitedPath) {return true}
@@ -545,8 +448,8 @@ struct MazeView: View {
     /// - Returns: an array of tuples that represents the path of the solution, with the target at the end of the array.
     func backtrack(_ parents:[[(Int, Int)]]) -> [(Int, Int)] {
         var path: [(Int, Int)] = []
-        var curr: (Int, Int) = parents[target.0][target.1]
-        while (curr != (start.0, start.1)) {
+        var curr: (Int, Int) = parents[maze.target.0][maze.target.1]
+        while (curr != (maze.start.0, maze.start.1)) {
             path.insert(curr, at: 0)
             curr = parents[curr.0][curr.1]
         }
@@ -561,7 +464,7 @@ struct MazeView: View {
     func animateVisited(_ i: Int, _ visitedPath: [(Int, Int)]) {
         guard i < visitedPath.count else {animatePath(0)
             return}
-        guard isAnimating else {return}
+        guard action.isAnimating else {return}
         
         let(x, y) = visitedPath[i]
         colours[x][y] = Color.purple
@@ -575,10 +478,10 @@ struct MazeView: View {
     /// - Parameters:
     ///     i: the index of solutionPath to display.
     func animatePath(_ i: Int) {
-        guard i < solutionPath.count else {isAnimating = false
+        guard i < solutionPath.count else {action.isAnimating = false
             return}
         
-        guard isAnimating else {return}
+        guard action.isAnimating else {return}
         
         let (x, y) = solutionPath[i]
         colours[x][y] = Color.orange
@@ -609,10 +512,10 @@ struct MazeView: View {
     /// Updates colours. Stop animation immediately, change colours[i][j] to white if (i, j) is not a wall, the start, or the target.
     func clearSolution() {
         solutionPath = []
-        isAnimating = false
+        action.isAnimating = false
         for x in 0..<COLS {
             for y in 0..<ROWS {
-                if (colours[x][y] != Color.black && start != (x, y) && target != (x, y)) {
+                if (colours[x][y] != Color.black && maze.start != (x, y) && maze.target != (x, y)) {
                     colours[x][y] = Color.white
                 }
             }
@@ -622,82 +525,12 @@ struct MazeView: View {
     /// Updates the entire maze. Resets all the state variables to their default values.
     func clearAll() {
         solutionPath = []
-        isAnimating = false
-        settingStart = false
-        start = (-1, -1)
-        settingTarget = false
-        target = (-1, -1)
+        action.isAnimating = false
+        action.editingStart = false
+        maze.start = (-1, -1)
+        action.editingTarget = false
+        maze.target = (-1, -1)
         colours = Array(repeating: Array(repeating: Color.white, count: ROWS), count: COLS)
     }
     
-}
-
-struct MainMenuView: View {
-    @EnvironmentObject var stateMachine: StateMachine
-    @EnvironmentObject var settings: Settings
-    @State private var showSettings: Bool = false
-    var body: some View {
-        ZStack {
-            VStack {
-                Spacer()
-                Text("Welcome to Algorithm Visualizer")
-                    .font(.system(size: 50))
-                    .fontWeight(.heavy)
-                    .foregroundColor(Color.blue)
-                Spacer()
-                VStack {
-                    Button {
-                        // Sorting algorithms
-                    } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 15)
-                                .foregroundStyle(Color.teal)
-                                .frame(width: 400, height: 150)
-                            Text("Sorting Algorithms")
-                                .font(.system(size: 24))
-                                .fontWeight(.black)
-                                .foregroundStyle(Color.white)
-                        }
-                    }
-                    Button {
-                        stateMachine.appState = .maze
-                    } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 15)
-                                .foregroundStyle(Color.teal)
-                                .frame(width: 400, height: 150)
-                            Text("BFS and DFS Maze Solver")
-                                .font(.system(size: 24))
-                                .fontWeight(.black)
-                                .foregroundStyle(Color.white)
-                        }
-                    }
-                }
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button {
-                        withAnimation {
-                            stateMachine.appState = .settings
-                        }
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .foregroundStyle(Color.gray)
-                                .frame(width: 100)
-                                .padding()
-                            Image(systemName: "gear")
-                                .font(.system(size: 60))
-                                .padding()
-                                .foregroundStyle(Color.white)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
 }
