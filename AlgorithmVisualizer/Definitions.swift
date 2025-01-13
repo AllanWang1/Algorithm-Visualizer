@@ -7,7 +7,13 @@ enum AppState {
 }
 
 
+// MazeView
+let initMazeCellSize: CGFloat = 30
+let initMazeCOLS: Int = 27
+let initMazeROWS: Int = 15
 
-let initMazeCellSize: Int = 30
-let initMazeCOLS: Int = 31
-let initMazeROWS: Int = 19
+// Settings
+let MAX_MAZE_COLS: Int = 37
+let MAX_MAZE_ROWS: Int = 21
+let MIN_MAZE_COLS: Int = 4
+let MIN_MAZE_ROWS: Int = 4

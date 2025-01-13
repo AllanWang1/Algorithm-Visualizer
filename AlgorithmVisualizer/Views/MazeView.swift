@@ -1,17 +1,36 @@
 import SwiftUI
 
 private class Action: ObservableObject {
-    @Published var editingStart: Bool = false;
-    @Published var editingTarget: Bool = false;
-    @Published var editingWall: Bool = true;
-    @Published var isAnimating: Bool = false;
-    @Published var slowAnimation: Bool = false;
+    @Published var editingStart: Bool = false
+    @Published var editingTarget: Bool = false
+    @Published var editingWall: Bool = true
+    @Published var isAnimating: Bool = false
+    @Published var slowAnimation: Bool = false
+    @Published var noSolutionWarning: Bool = false
+    
+    func settingStart() {
+        self.editingStart = true
+        self.editingTarget = false
+        self.editingWall = false
+    }
+    func settingTarget() {
+        self.editingStart = false
+        self.editingTarget = true
+        self.editingWall = false
+    }
+    func reset() {
+        self.editingStart = true
+        self.editingTarget = false
+        self.editingWall = false
+    }
 }
 
 private class Maze: ObservableObject {
     @Published var start: (Int, Int) = (-1 , -1)
     @Published var target: (Int, Int) = (-1, -1)
 }
+
+
 // struct for the view of the maze state. Contains all necessary functions and variables to deal with the logic components of this state
 struct MazeView: View {
     @EnvironmentObject var stateMachine: StateMachine
@@ -56,6 +75,7 @@ struct MazeView: View {
                     }
                     Spacer()
                 }
+                
                 // Maze cells
                 VStack(spacing: 0) {
                     ForEach(0..<ROWS, id:\.self) { row in
@@ -87,9 +107,7 @@ struct MazeView: View {
                         
                         // set target button
                         Button {
-                            action.editingTarget = true
-                            action.editingStart = false
-                            action.editingWall = false
+                            action.settingTarget()
                         } label: {
                             if (action.editingTarget) {
                                 Label("Editing Target Position...", systemImage: "checkmark.circle.fill")
@@ -99,9 +117,7 @@ struct MazeView: View {
                         }
                         // set start button
                         Button {
-                            action.editingStart.toggle()
-                            action.editingTarget = false
-                            action.editingWall = false
+                            action.settingStart()
                         } label: {
                             if (action.editingStart) {
                                 Label("Editing Start Position...", systemImage: "checkmark.circle.fill")
@@ -111,9 +127,7 @@ struct MazeView: View {
                         }
                         
                         Button {
-                            action.editingWall.toggle()
-                            action.editingStart = false
-                            action.editingTarget = false
+                            action.reset()
                         } label: {
                             if (action.editingWall) {
                                 Label("Editing Walls...", systemImage: "checkmark.circle.fill")
@@ -525,10 +539,8 @@ struct MazeView: View {
     /// Updates the entire maze. Resets all the state variables to their default values.
     func clearAll() {
         solutionPath = []
-        action.isAnimating = false
-        action.editingStart = false
+        action.reset()
         maze.start = (-1, -1)
-        action.editingTarget = false
         maze.target = (-1, -1)
         colours = Array(repeating: Array(repeating: Color.white, count: ROWS), count: COLS)
     }

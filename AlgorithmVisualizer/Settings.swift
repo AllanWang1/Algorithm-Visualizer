@@ -2,7 +2,7 @@
 
 import Foundation
 class Settings: ObservableObject {
-    @Published private(set) var mazeCellSize: CGFloat = 30 {
+    @Published private(set) var mazeCellSize: CGFloat = initMazeCellSize {
         didSet {
             if mazeCellSize < 10 { mazeCellSize = 10 } // Minimum value constraint
         }
@@ -10,13 +10,13 @@ class Settings: ObservableObject {
 
     @Published private(set) var mazeCOLS: Int = initMazeCOLS {
         didSet {
-            if mazeCOLS < 1 { mazeCOLS = 1 } // Minimum value constraint
+            if mazeCOLS < 2 { mazeCOLS = 2 } // Minimum value constraint
         }
     }
 
     @Published private(set) var mazeROWS: Int = initMazeROWS {
         didSet {
-            if mazeROWS < 1 { mazeROWS = 1 } // Minimum value constraint
+            if mazeROWS < 2 { mazeROWS = 2 } // Minimum value constraint
         }
     }
 

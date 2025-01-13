@@ -25,15 +25,17 @@ struct SettingsView: View {
                     Text("Rows")
                         .padding(.leading, 120)
                         .font(.system(size: 20))
+                    
                     Slider(value: Binding(
                             get: { Double(settings.mazeROWS) },
                             set: { settings.setROWS(Int($0)) }),
-                           in: 2...25,
+                           in: Double(MIN_MAZE_ROWS)...Double(MAX_MAZE_ROWS),
                            step: 1)
                     
+                    Text(String(settings.mazeROWS))
                     Spacer()
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 10)
                 HStack {
                     Text("Columns")
                         .padding(.leading, 120)
@@ -41,11 +43,12 @@ struct SettingsView: View {
                     Slider(value: Binding(
                             get: { Double(settings.mazeCOLS) },
                             set: { settings.setCOLS(Int($0)) }),
-                           in: 2...40,
+                           in: Double(MIN_MAZE_COLS)...Double(MAX_MAZE_COLS),
                            step: 1)
+                    Text(String(settings.mazeCOLS))
                     Spacer()
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 10)
             }
             
             Button("Close") {
