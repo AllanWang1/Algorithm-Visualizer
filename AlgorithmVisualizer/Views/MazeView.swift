@@ -6,7 +6,7 @@ private class Action: ObservableObject {
     @Published var editingWall: Bool = true
     @Published var isAnimating: Bool = false
     @Published var slowAnimation: Bool = false
-    @Published var noSolutionWarning: Bool = false
+    @Published var noSolution: Bool = false
     
     func settingStart() {
         self.editingStart = true
@@ -249,7 +249,63 @@ struct MazeView: View {
                 .foregroundColor(Color(red: 152/255, green: 200/255, blue: 151/255))
                 
             }
-        }
+            if (action.noSolution) {
+                ZStack {
+                    Color.gray.opacity(0.4)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        .onTapGesture {
+                            withAnimation {
+                                action.noSolution = false
+                            }
+                        }
+                    
+                    //ultraThinMaterial will blur what is behind the warning
+                    RoundedRectangle(cornerRadius: 20)
+                        .foregroundStyle(Color(red: 211/255, green: 211/255, blue: 211/255))
+                        .frame(maxWidth: 700, maxHeight: 500)
+                        .background(.ultraThinMaterial)
+                        .shadow(radius: 10)
+                        .transition(.scale)
+                    
+                    VStack {
+                        VStack {
+                            Text("A maze will have a solution if there is a start, exit, and a possible path between them.")
+                            Text("This maze has no solution due to: ")
+                            if (maze.target == (-1, -1)) {
+                                Text("- No exit (target) is set")
+                            }
+                            if (maze.start == (-1, -1)) {
+                                Text("- No start position is set")
+                            }
+                            if (maze.start != (-1, -1) && maze.target != (-1, -1)) {
+                                Text("- No possible path between start and exit (target)")
+                            }
+                        }
+                        .foregroundStyle(Color.black)
+                        .font(.system(size: 20))
+                        
+                        HStack {
+                            Spacer()
+                            Button{
+                                withAnimation {
+                                    action.noSolution = false
+                                }
+                            } label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .foregroundStyle(Color(red: 1, green: 213/255, blue: 128/255))
+                                        .frame(width: 200, height: 130)
+                                    Text("Got it, thanks")
+                                        
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+            }
+        } // main ZStack 
         
     }
     
@@ -518,9 +574,11 @@ struct MazeView: View {
         }
     }
     
-    
+    /// Sets action.noSolution = true. May add more features in future.
     func noSolution() {
-        
+        withAnimation {
+            action.noSolution = true
+        }
     }
     
     /// Updates colours. Stop animation immediately, change colours[i][j] to white if (i, j) is not a wall, the start, or the target.
