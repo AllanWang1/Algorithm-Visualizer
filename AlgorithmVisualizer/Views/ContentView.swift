@@ -15,6 +15,10 @@ struct ContentView: View {
             MazeView(settings.mazeCOLS, settings.mazeROWS, settings.mazeCellSize)
                 .environmentObject(stateMachine)
                 .environmentObject(settings)
+        case .sort:
+            SortView()
+                .environmentObject(stateMachine)
+                .environmentObject(settings)
         case .settings:
             ZStack {
                 MainMenuView()

@@ -3,6 +3,7 @@ import Foundation
 enum AppState {
     case mainMenu
     case maze
+    case sort
     case settings
 }
 

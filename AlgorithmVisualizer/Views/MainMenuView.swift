@@ -15,7 +15,7 @@ struct MainMenuView: View {
                 Spacer()
                 VStack {
                     Button {
-                        // Sorting algorithms
+                        stateMachine.appState = .sort
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 15)
