@@ -19,9 +19,9 @@ private class Action: ObservableObject {
         self.editingWall = false
     }
     func reset() {
-        self.editingStart = true
+        self.editingStart = false
         self.editingTarget = false
-        self.editingWall = false
+        self.editingWall = true
     }
 }
 
@@ -270,7 +270,7 @@ struct MazeView: View {
                     
                     VStack {
                         VStack {
-                            Text("A maze will have a solution if there is a start, exit, and a possible path between them.")
+                            Text("A solvable maze has a start, exit, and a path between them.")
                             Text("This maze has no solution due to: ")
                             if (maze.target == (-1, -1)) {
                                 Text("- No exit (target) is set")
@@ -283,7 +283,7 @@ struct MazeView: View {
                             }
                         }
                         .foregroundStyle(Color.black)
-                        .font(.system(size: 20))
+                        .font(.system(size: 25))
                         
                         HStack {
                             Spacer()
@@ -295,8 +295,9 @@ struct MazeView: View {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 15)
                                         .foregroundStyle(Color(red: 1, green: 213/255, blue: 128/255))
-                                        .frame(width: 200, height: 130)
+                                        .frame(width: 150, height: 80)
                                     Text("Got it, thanks")
+                                        .foregroundStyle(Color.white)
                                         
                                 }
                             }

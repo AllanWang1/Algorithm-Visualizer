@@ -6,7 +6,16 @@ struct SortView: View {
     
     var body: some View {
         ZStack {
-            
+            VStack {
+                HStack {
+                    Button {
+                        stateMachine.appState = .mainMenu
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                }
+                Spacer()
+            }
         }
     }
 }
